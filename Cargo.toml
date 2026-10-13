@@ -1,6 +1,110 @@
-[package]
-name = "pipit"
+[workspace]
+resolver = "3"
+members = [
+    "crates/core",
+    "crates/db",
+    "crates/http",
+    "crates/formats/pypi",
+    "crates/web",
+    "crates/server",
+]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
 
-[dependencies]
+[workspace.lints.rust]
+unsafe_code = "forbid"
+non_ascii_idents = "forbid"
+elided_lifetimes_in_paths = "warn"
+missing_docs = "warn"
+missing_debug_implementations = "warn"
+unreachable_pub = "warn"
+unused_qualifications = "warn"
+unused_lifetimes = "warn"
+unused_import_braces = "warn"
+unused_macro_rules = "warn"
+single_use_lifetimes = "warn"
+trivial_casts = "warn"
+trivial_numeric_casts = "warn"
+let_underscore_drop = "warn"
+meta_variable_misuse = "warn"
+unit_bindings = "warn"
+
+[workspace.lints.rustdoc]
+broken_intra_doc_links = "warn"
+private_intra_doc_links = "warn"
+bare_urls = "warn"
+unescaped_backticks = "warn"
+
+[workspace.lints.clippy]
+all = { level = "forbid", priority = -1 }
+pedantic = { level = "forbid", priority = -1 }
+nursery = { level = "forbid", priority = -1 }
+cargo = { level = "deny", priority = -1 }
+# Transitive duplicates are out of our control.
+multiple_crate_versions = "allow"
+
+allow_attributes = "forbid"
+allow_attributes_without_reason = "forbid"
+as_underscore = "forbid"
+assertions_on_result_states = "forbid"
+clone_on_ref_ptr = "forbid"
+create_dir = "forbid"
+dbg_macro = "forbid"
+deref_by_slicing = "forbid"
+empty_enum_variants_with_brackets = "forbid"
+empty_structs_with_brackets = "forbid"
+error_impl_error = "forbid"
+exit = "forbid"
+expect_used = "forbid"
+filetype_is_file = "forbid"
+float_cmp_const = "forbid"
+fn_to_numeric_cast_any = "forbid"
+format_push_string = "forbid"
+get_unwrap = "forbid"
+if_then_some_else_none = "forbid"
+impl_trait_in_params = "forbid"
+indexing_slicing = "forbid"
+infinite_loop = "forbid"
+large_include_file = "forbid"
+let_underscore_must_use = "forbid"
+let_underscore_untyped = "forbid"
+lossy_float_literal = "forbid"
+map_err_ignore = "forbid"
+mem_forget = "forbid"
+mixed_read_write_in_expression = "forbid"
+multiple_inherent_impl = "forbid"
+needless_raw_strings = "forbid"
+panic = "forbid"
+partial_pub_fields = "forbid"
+pathbuf_init_then_push = "forbid"
+print_stderr = "forbid"
+print_stdout = "forbid"
+rc_buffer = "forbid"
+redundant_type_annotations = "forbid"
+renamed_function_params = "forbid"
+rest_pat_in_fully_bound_structs = "forbid"
+same_name_method = "forbid"
+str_to_string = "forbid"
+string_add = "forbid"
+string_lit_chars_any = "forbid"
+string_slice = "forbid"
+tests_outside_test_module = "forbid"
+todo = "forbid"
+try_err = "forbid"
+unimplemented = "forbid"
+unnecessary_safety_comment = "forbid"
+unnecessary_self_imports = "forbid"
+unneeded_field_pattern = "forbid"
+unseparated_literal_suffix = "forbid"
+unwrap_used = "forbid"
+verbose_file_reads = "forbid"
+
+[workspace.dependencies]
+magpie-core = { version = "0.1.0", path = "crates/core" }
+magpie-db = { version = "0.1.0", path = "crates/db" }
+magpie-http = { version = "0.1.0", path = "crates/http" }
+magpie-pypi = { version = "0.1.0", path = "crates/formats/pypi" }
+magpie-web = { version = "0.1.0", path = "crates/web" }

@@ -1,0 +1,13 @@
+[package]
+name = "magpie-web"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+magpie-core.workspace = true
+magpie-db.workspace = true
+magpie-http.workspace = true
+
+[lints]
+workspace = true
