@@ -3,10 +3,13 @@ name = "magpie-http"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Shared HTTP glue for magpie."
 
 [dependencies]
-magpie-core.workspace = true
-magpie-db.workspace = true
 
 [lints]
 workspace = true

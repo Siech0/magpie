@@ -9,43 +9,19 @@ version = "0.1.0"
 [[package]]
 name = "magpie-db"
 version = "0.1.0"
-dependencies = [
- "magpie-core",
-]
 
 [[package]]
 name = "magpie-http"
 version = "0.1.0"
-dependencies = [
- "magpie-core",
- "magpie-db",
-]
 
 [[package]]
 name = "magpie-pypi"
 version = "0.1.0"
-dependencies = [
- "magpie-core",
- "magpie-db",
- "magpie-http",
-]
 
 [[package]]
 name = "magpie-server"
 version = "0.1.0"
-dependencies = [
- "magpie-core",
- "magpie-db",
- "magpie-http",
- "magpie-pypi",
- "magpie-web",
-]
 
 [[package]]
 name = "magpie-web"
 version = "0.1.0"
-dependencies = [
- "magpie-core",
- "magpie-db",
- "magpie-http",
-]
