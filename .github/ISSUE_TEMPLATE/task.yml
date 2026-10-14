@@ -1,0 +1,11 @@
+name: Task
+description: Planned development work.
+title: "[Task]: "
+labels: [task]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+    validations:
+      required: true
