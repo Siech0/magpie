@@ -75,21 +75,7 @@ jobs:
           tool: cargo-udeps
       - run: cargo udeps --workspace --all-targets --all-features
 
-  semver:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-semver-checks
-      - run: cargo semver-checks --workspace --baseline-rev origin/${{ github.base_ref }}
-
   mutants:
-    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

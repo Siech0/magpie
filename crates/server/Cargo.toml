@@ -3,13 +3,13 @@ name = "magpie-server"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
+repository.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Self-hosted package index and caching proxy."
 
 [dependencies]
-magpie-core.workspace = true
-magpie-db.workspace = true
-magpie-http.workspace = true
-magpie-pypi.workspace = true
-magpie-web.workspace = true
 
 [lints]
 workspace = true
