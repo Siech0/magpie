@@ -10,6 +10,15 @@ categories.workspace = true
 description = "Self-hosted package index and caching proxy."
 
 [dependencies]
+magpie-http = { version = "0.1.0", path = "../http" }
+magpie-telemetry = { version = "0.1.0", path = "../telemetry" }
+anyhow = "1.0.104"
+clap = { version = "4.6.7", features = ["derive", "env"] }
+figment = { version = "0.10.19", features = ["env", "toml"] }
+serde = { version = "1.0.229", features = ["derive"] }
+tokio = { version = "1.53.3", features = ["macros", "rt-multi-thread", "net", "signal"] }
+toml = "1.1.8"
+tracing = "0.1.44"
 
 [lints]
 workspace = true

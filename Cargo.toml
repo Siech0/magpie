@@ -7,6 +7,7 @@ members = [
     "crates/formats/pypi",
     "crates/web",
     "crates/server",
+    "crates/telemetry",
 ]
 
 [workspace.package]
@@ -43,72 +44,68 @@ bare_urls = "warn"
 unescaped_backticks = "warn"
 
 [workspace.lints.clippy]
-all = { level = "forbid", priority = -1 }
-pedantic = { level = "forbid", priority = -1 }
-nursery = { level = "forbid", priority = -1 }
+all = { level = "deny", priority = -1 }
+pedantic = { level = "deny", priority = -1 }
+nursery = { level = "deny", priority = -1 }
 cargo = { level = "deny", priority = -1 }
+
 # Transitive duplicates are out of our control.
 multiple_crate_versions = "allow"
+# Contradicts rustc's `unreachable_pub`, which wants `pub(crate)` in private modules.
+redundant_pub_crate = "allow"
 
-allow_attributes = "forbid"
-allow_attributes_without_reason = "forbid"
-as_underscore = "forbid"
-assertions_on_result_states = "forbid"
-clone_on_ref_ptr = "forbid"
-create_dir = "forbid"
-dbg_macro = "forbid"
-deref_by_slicing = "forbid"
-empty_enum_variants_with_brackets = "forbid"
-empty_structs_with_brackets = "forbid"
-error_impl_error = "forbid"
-exit = "forbid"
-expect_used = "forbid"
-filetype_is_file = "forbid"
-float_cmp_const = "forbid"
-fn_to_numeric_cast_any = "forbid"
-format_push_string = "forbid"
-get_unwrap = "forbid"
-if_then_some_else_none = "forbid"
-impl_trait_in_params = "forbid"
-indexing_slicing = "forbid"
-infinite_loop = "forbid"
-large_include_file = "forbid"
-let_underscore_must_use = "forbid"
-let_underscore_untyped = "forbid"
-lossy_float_literal = "forbid"
-map_err_ignore = "forbid"
-mem_forget = "forbid"
-mixed_read_write_in_expression = "forbid"
-multiple_inherent_impl = "forbid"
-needless_raw_strings = "forbid"
-panic = "forbid"
-partial_pub_fields = "forbid"
-pathbuf_init_then_push = "forbid"
-print_stderr = "forbid"
-print_stdout = "forbid"
-rc_buffer = "forbid"
-redundant_type_annotations = "forbid"
-renamed_function_params = "forbid"
-rest_pat_in_fully_bound_structs = "forbid"
-same_name_method = "forbid"
-str_to_string = "forbid"
-string_add = "forbid"
-string_lit_chars_any = "forbid"
-string_slice = "forbid"
-tests_outside_test_module = "forbid"
-todo = "forbid"
-try_err = "forbid"
-unimplemented = "forbid"
-unnecessary_safety_comment = "forbid"
-unnecessary_self_imports = "forbid"
-unneeded_field_pattern = "forbid"
-unseparated_literal_suffix = "forbid"
-unwrap_used = "forbid"
-verbose_file_reads = "forbid"
-
-[workspace.dependencies]
-magpie-core = { version = "0.1.0", path = "crates/core" }
-magpie-db = { version = "0.1.0", path = "crates/db" }
-magpie-http = { version = "0.1.0", path = "crates/http" }
-magpie-pypi = { version = "0.1.0", path = "crates/formats/pypi" }
-magpie-web = { version = "0.1.0", path = "crates/web" }
+allow_attributes = "deny"
+allow_attributes_without_reason = "deny"
+as_underscore = "deny"
+assertions_on_result_states = "deny"
+clone_on_ref_ptr = "deny"
+create_dir = "deny"
+dbg_macro = "deny"
+deref_by_slicing = "deny"
+empty_enum_variants_with_brackets = "deny"
+empty_structs_with_brackets = "deny"
+error_impl_error = "deny"
+exit = "deny"
+expect_used = "deny"
+filetype_is_file = "deny"
+float_cmp_const = "deny"
+fn_to_numeric_cast_any = "deny"
+format_push_string = "deny"
+get_unwrap = "deny"
+if_then_some_else_none = "deny"
+impl_trait_in_params = "deny"
+indexing_slicing = "deny"
+infinite_loop = "deny"
+large_include_file = "deny"
+let_underscore_must_use = "deny"
+let_underscore_untyped = "deny"
+lossy_float_literal = "deny"
+map_err_ignore = "deny"
+mem_forget = "deny"
+mixed_read_write_in_expression = "deny"
+multiple_inherent_impl = "deny"
+needless_raw_strings = "deny"
+panic = "deny"
+partial_pub_fields = "deny"
+pathbuf_init_then_push = "deny"
+print_stderr = "deny"
+print_stdout = "deny"
+rc_buffer = "deny"
+redundant_type_annotations = "deny"
+renamed_function_params = "deny"
+rest_pat_in_fully_bound_structs = "deny"
+same_name_method = "deny"
+str_to_string = "deny"
+string_add = "deny"
+string_lit_chars_any = "deny"
+string_slice = "deny"
+tests_outside_test_module = "deny"
+todo = "deny"
+try_err = "deny"
+unimplemented = "deny"
+unnecessary_safety_comment = "deny"
+unnecessary_self_imports = "deny"
+unneeded_field_pattern = "deny"
+unseparated_literal_suffix = "deny"
+unwrap_used = "deny"
+verbose_file_reads = "deny"

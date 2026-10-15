@@ -1,0 +1,21 @@
+[package]
+name = "magpie-telemetry"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+readme.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Logging, tracing, and metrics setup for magpie."
+
+[dependencies]
+anyhow = "1.0.104"
+clap = {version = "4.6.7", features = ["derive"] }
+serde = { version = "1.0.229", features = ["derive"] }
+thiserror = "2.0.21"
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
+
+[lints]
+workspace = true
