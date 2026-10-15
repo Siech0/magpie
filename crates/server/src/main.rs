@@ -1,5 +1,7 @@
 //! The magpie server binary.
 mod config;
+mod routes;
+mod state;
 
 use std::future;
 use std::io::Write as _;
@@ -12,7 +14,6 @@ use tokio::net::TcpListener;
 use tokio::signal;
 
 use config::{Cli, Command, Config};
-use magpie_http::serve;
 
 #[tokio::main]
 async fn main() -> ExitCode {
@@ -41,7 +42,7 @@ fn run_config_command(config: &Config) -> anyhow::Result<()> {
 }
 
 async fn run_serve_command(config: &Config) -> anyhow::Result<()> {
-    let _log_control = magpie_telemetry::init(&config.log)?;
+    let log_control = magpie_telemetry::init(&config.log)?;
     magpie_telemetry::install_panic_hook();
 
     let bind_address = SocketAddr::new(config.http.ip, config.http.port);
@@ -58,7 +59,9 @@ async fn run_serve_command(config: &Config) -> anyhow::Result<()> {
         tracing::info!("shutdown signal received");
     };
 
-    serve(listener, shutdown).await?;
+    let app = routes::app(state::AppState { log_control });
+    magpie_http::serve(listener, app, shutdown).await?;
     tracing::info!("shutdown complete");
+
     Ok(())
 }

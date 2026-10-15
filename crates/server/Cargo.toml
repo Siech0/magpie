@@ -19,6 +19,7 @@ serde = { version = "1.0.229", features = ["derive"] }
 tokio = { version = "1.53.3", features = ["macros", "rt-multi-thread", "net", "signal"] }
 toml = "1.1.8"
 tracing = "0.1.44"
+axum = { version = "0.8.9", features = ["macros"] }
 
 [lints]
 workspace = true
