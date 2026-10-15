@@ -10,6 +10,7 @@ categories.workspace = true
 description = "Database access and migrations for magpie."
 
 [dependencies]
+sqlx = { version = "0.9.0", features = ["tls-rustls", "runtime-tokio", "postgres", "sqlite", "uuid", "time", "json", "migrate"] }
 
 [lints]
 workspace = true

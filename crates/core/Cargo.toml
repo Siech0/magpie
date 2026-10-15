@@ -10,6 +10,10 @@ categories.workspace = true
 description = "Format-neutral domain model for magpie."
 
 [dependencies]
+secrecy = "0.10.3"
+serde = { version = "1.0.229", features = ["derive"] }
+thiserror = "2.0.21"
+zeroize = "1.9.1"
 
 [lints]
 workspace = true
