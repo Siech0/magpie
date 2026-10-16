@@ -9,12 +9,14 @@ const DEFAULT_PORT: u16 = 3000;
 const DEFAULT_PORT: u16 = 80;
 
 /// HTTP listener settings.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, garde::Validate)]
 #[serde(default, deny_unknown_fields)]
 pub struct HttpConfig {
     /// Address to bind.
+    #[garde(skip)]
     pub ip: IpAddr,
     /// Port to bind.
+    #[garde(range(min = 1))]
     pub port: u16,
 }
 

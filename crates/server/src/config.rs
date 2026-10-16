@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use clap::{Parser, Subcommand};
 use figment::Figment;
 use figment::providers::{Env, Format as _, Serialized, Toml};
+use garde::{Unvalidated, Valid};
 use magpie_db::{DbArgs, DbConfig};
 use magpie_http::{HttpArgs, HttpConfig};
 use magpie_telemetry::{LogArgs, LogConfig};
@@ -35,17 +36,20 @@ pub(crate) enum Command {
     Serve,
 }
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize, garde::Validate)]
 #[serde(default, deny_unknown_fields)]
 pub(crate) struct Config {
+    #[garde(dive)]
     pub(crate) log: LogConfig,
+    #[garde(dive)]
     pub(crate) http: HttpConfig,
+    #[garde(dive)]
     pub(crate) db: DbConfig,
 }
 
 impl Config {
     /// Precedence: flags, then `MAGPIE_*` env, then the file, then defaults.
-    pub(crate) fn load(cli: &Cli) -> anyhow::Result<Self> {
+    pub(crate) fn load(cli: &Cli) -> anyhow::Result<Valid<Self>> {
         let file: Option<PathBuf> = match &cli.config {
             Some(path) if path.is_dir() => {
                 // Trivial and common error worthy of a guard, commonly occurring with flawed container mounts.
@@ -85,10 +89,11 @@ impl Config {
             figment = figment.merge(Toml::file_exact(file));
         }
 
-        Ok(figment
+        let config: Self = figment
             .merge(Env::prefixed("MAGPIE_").split("__").ignore(&["config"]))
             .merge(Serialized::defaults(cli))
-            .extract()?)
+            .extract()?;
+        Ok(Unvalidated::new(config).validate()?)
     }
 }
 

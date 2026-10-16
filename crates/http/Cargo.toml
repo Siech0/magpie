@@ -10,6 +10,7 @@ categories.workspace = true
 description = "Shared HTTP glue for magpie."
 
 [dependencies]
+garde = { version = "0.23.0", features = ["derive"] }
 axum = { version = "0.8.9", features = ["macros"] }
 clap = "4.6.7"
 hyper = "1.12.0"

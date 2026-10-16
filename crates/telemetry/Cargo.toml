@@ -10,6 +10,7 @@ categories.workspace = true
 description = "Logging, tracing, and metrics setup for magpie."
 
 [dependencies]
+garde = { version = "0.23.0", features = ["derive"] }
 anyhow = "1.0.104"
 clap = {version = "4.6.7", features = ["derive"] }
 serde = { version = "1.0.229", features = ["derive"] }

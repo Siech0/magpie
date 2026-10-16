@@ -10,6 +10,7 @@ categories.workspace = true
 description = "Self-hosted package index and caching proxy."
 
 [dependencies]
+garde = { version = "0.23.0", features = ["derive"] }
 magpie-http = { version = "0.1.0", path = "../http" }
 magpie-telemetry = { version = "0.1.0", path = "../telemetry" }
 magpie-db = { version = "0.1.0", path = "../db" }

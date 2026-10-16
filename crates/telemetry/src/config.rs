@@ -2,20 +2,23 @@ use clap::Args;
 use serde::{Deserialize, Serialize};
 
 /// Log output settings.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, garde::Validate)]
 #[serde(default, deny_unknown_fields)]
 pub struct LogConfig {
     /// Stdout sink settings.
+    #[garde(dive)]
     pub stdout: StdoutConfig,
 }
 
 /// Stdout sink settings.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, garde::Validate)]
 #[serde(default, deny_unknown_fields)]
 pub struct StdoutConfig {
     /// Log line format.
+    #[garde(skip)]
     pub format: StdoutFormat,
     /// Filter directives, e.g. `info,magpie_http=debug`. `RUST_LOG` overrides this.
+    #[garde(skip)]
     pub filter: String,
 }
 
