@@ -160,12 +160,17 @@ pub struct SqliteConfig {
     /// Database file path. Created when missing.
     #[garde(skip)]
     pub path: PathBuf,
+    /// Wait this long for the write lock before failing with "database is locked".
+    #[serde(with = "magpie_core::duration")]
+    #[garde(custom(non_zero))]
+    pub busy_timeout: Duration,
 }
 
 impl Default for SqliteConfig {
     fn default() -> Self {
         Self {
             path: PathBuf::from(DEFAULT_SQLITE_PATH),
+            busy_timeout: Duration::from_secs(5),
         }
     }
 }
@@ -327,10 +332,17 @@ struct SqliteArgs {
     #[arg(id = "sqlite-path", long = "sqlite-path", value_name = "PATH")]
     #[serde(skip_serializing_if = "Option::is_none")]
     path: Option<PathBuf>,
+    /// Wait this long for the SQLite write lock, e.g. `10s`.
+    #[arg(id = "sqlite-busy-timeout", long = "sqlite-busy-timeout", value_name = "DURATION", value_parser = magpie_core::duration::parse)]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "magpie_core::duration::serialize_option"
+    )]
+    busy_timeout: Option<Duration>,
 }
 
 impl SqliteArgs {
     const fn is_empty(&self) -> bool {
-        self.path.is_none()
+        self.path.is_none() && self.busy_timeout.is_none()
     }
 }

@@ -11,7 +11,7 @@ use sqlx::{
     Connection as _, Database,
     pool::PoolOptions,
     postgres::{PgConnectOptions, PgPool},
-    sqlite::{SqliteConnectOptions, SqlitePool},
+    sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePool, SqliteSynchronous},
 };
 
 /// Database handle.
@@ -93,7 +93,11 @@ impl Db {
 
                 let connect_options = SqliteConnectOptions::new()
                     .filename(&backend.path)
-                    .create_if_missing(true);
+                    .create_if_missing(true)
+                    .journal_mode(SqliteJournalMode::Wal)
+                    .synchronous(SqliteSynchronous::Normal)
+                    .foreign_keys(true)
+                    .busy_timeout(backend.busy_timeout);
 
                 let pool = pool_options(&config.pool)
                     .connect_with(connect_options)
