@@ -4,6 +4,7 @@ use clap::{Args, ValueEnum};
 use magpie_core::secret::{SecretRef, SecretRefParser};
 use magpie_core::validate::{non_zero, requires};
 use serde::{Deserialize, Serialize};
+use sqlx::postgres::PgSslMode;
 
 #[cfg(debug_assertions)]
 const DEFAULT_SQLITE_PATH: &str = "magpie.db";
@@ -94,10 +95,10 @@ pub struct PostgresConfig {
     pub ssl_mode: SslMode,
     /// CA certificate (PEM) used to verify the server, instead of the default roots.
     #[garde(skip)]
-    pub ssl_root_cert: Option<PathBuf>,
+    pub ssl_root_cert: Option<SecretRef>,
     /// Client certificate (PEM) for mutual TLS. Requires `ssl_client_key`.
     #[garde(custom(requires(self.ssl_client_key.as_ref(), "ssl_client_key")))]
-    pub ssl_client_cert: Option<PathBuf>,
+    pub ssl_client_cert: Option<SecretRef>,
     /// Client private key (PEM) for mutual TLS. Requires `ssl_client_cert`.
     #[garde(custom(requires(self.ssl_client_cert.as_ref(), "ssl_client_cert")))]
     pub ssl_client_key: Option<SecretRef>,
@@ -138,6 +139,18 @@ pub enum SslMode {
     /// TLS required. The certificate must chain to a trusted CA and match the host name.
     #[default]
     VerifyFull,
+}
+
+impl From<SslMode> for PgSslMode {
+    fn from(mode: SslMode) -> Self {
+        match mode {
+            SslMode::Disable => Self::Disable,
+            SslMode::Prefer => Self::Prefer,
+            SslMode::Require => Self::Require,
+            SslMode::VerifyCa => Self::VerifyCa,
+            SslMode::VerifyFull => Self::VerifyFull,
+        }
+    }
 }
 
 /// SQLite settings.
@@ -269,22 +282,24 @@ struct PostgresArgs {
     )]
     #[serde(skip_serializing_if = "Option::is_none")]
     ssl_mode: Option<SslMode>,
-    /// CA certificate (PEM) used to verify the Postgres server.
+    /// CA certificate (PEM) used to verify the Postgres server, as a reference, e.g. `file:/etc/ssl/pg-ca.pem`.
     #[arg(
         id = "pg-ssl-root-cert",
         long = "pg-ssl-root-cert",
-        value_name = "PATH"
+        value_name = "REF",
+        value_parser = SecretRefParser
     )]
     #[serde(skip_serializing_if = "Option::is_none")]
-    ssl_root_cert: Option<PathBuf>,
-    /// Client certificate (PEM) for mutual TLS.
+    ssl_root_cert: Option<SecretRef>,
+    /// Client certificate (PEM) for mutual TLS, as a reference, e.g. `file:/run/secrets/pg.crt`.
     #[arg(
         id = "pg-ssl-client-cert",
         long = "pg-ssl-client-cert",
-        value_name = "PATH"
+        value_name = "REF",
+        value_parser = SecretRefParser
     )]
     #[serde(skip_serializing_if = "Option::is_none")]
-    ssl_client_cert: Option<PathBuf>,
+    ssl_client_cert: Option<SecretRef>,
     /// Client private key (PEM) for mutual TLS, as a reference, e.g. `file:/run/secrets/pg.key`.
     #[arg(id = "pg-ssl-client-key", long = "pg-ssl-client-key", value_name = "REF", value_parser = SecretRefParser)]
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -9,9 +9,9 @@ use tower_http::{
 use tracing::{Level, Span};
 
 /// Middleware common to all routers
-pub fn global<State>(router: Router<State>) -> Router<State>
+pub fn global<S>(router: Router<S>) -> Router<S>
 where
-    State: Clone + Send + Sync + 'static,
+    S: Clone + Send + Sync + 'static,
 {
     router.layer(
         ServiceBuilder::new()

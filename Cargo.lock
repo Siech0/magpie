@@ -1022,17 +1022,21 @@ dependencies = [
  "magpie-core",
  "serde",
  "sqlx",
+ "thiserror",
  "toml 1.1.8+spec-1.1.0",
+ "tracing",
 ]
 
 [[package]]
 name = "magpie-http"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "axum",
  "clap",
  "garde",
  "hyper",
+ "magpie-db",
  "serde",
  "thiserror",
  "tokio",

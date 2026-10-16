@@ -59,7 +59,9 @@ async fn run_serve_command(config: &Config) -> anyhow::Result<()> {
         tracing::info!("shutdown signal received");
     };
 
-    let app = routes::app(state::AppState { log_control });
+    let db = magpie_db::Db::connect(&config.db).await?;
+
+    let app = routes::app(state::AppState { db, log_control });
     magpie_http::serve(listener, app, shutdown).await?;
     tracing::info!("shutdown complete");
 
