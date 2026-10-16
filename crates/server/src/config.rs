@@ -34,6 +34,8 @@ pub(crate) enum Command {
     Config,
     /// Start the server
     Serve,
+    /// Apply pending database migrations and exit.
+    Migrate,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, garde::Validate)]

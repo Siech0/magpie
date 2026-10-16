@@ -16,4 +16,8 @@ pub enum DbError {
     /// The pool could not open its connections.
     #[error("could not connect to the database")]
     Connect(#[from] sqlx::Error),
+
+    /// A migration failed or the applied history does not match the embedded migrations.
+    #[error("could not migrate the database")]
+    Migrate(#[from] sqlx::migrate::MigrateError),
 }

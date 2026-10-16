@@ -12,15 +12,28 @@ const DEFAULT_SQLITE_PATH: &str = "magpie.db";
 const DEFAULT_SQLITE_PATH: &str = "/var/lib/magpie/magpie.db";
 
 /// Database settings. Exactly one backend, SQLite when none is configured.
-#[derive(Debug, Default, Serialize, Deserialize, garde::Validate)]
+#[derive(Debug, Serialize, Deserialize, garde::Validate)]
 #[serde(default, deny_unknown_fields)]
 pub struct DbConfig {
+    /// Apply pending migrations at startup. Turn off to run `magpie migrate` as a separate step.
+    #[garde(skip)]
+    pub auto_migrate: bool,
     /// The selected backend.
     #[garde(dive)]
     pub backend: Backend,
     /// Pool settings for either backend.
     #[garde(dive)]
     pub pool: PoolConfig,
+}
+
+impl Default for DbConfig {
+    fn default() -> Self {
+        Self {
+            auto_migrate: true,
+            backend: Backend::default(),
+            pool: PoolConfig::default(),
+        }
+    }
 }
 
 /// Connection pool settings.
@@ -33,6 +46,10 @@ pub struct PoolConfig {
     /// Minimum database connections.
     #[garde(range(max = self.max_connections))]
     pub min_connections: u32,
+    /// Wait this long for a free connection before failing. Keep it under the request timeout.
+    #[serde(with = "magpie_core::duration")]
+    #[garde(custom(non_zero))]
+    pub acquire_timeout: Duration,
     /// Close connections idle this long. Keep it under any network idle cutoff
     /// (firewalls, load balancers, `PgBouncer`).
     #[serde(with = "magpie_core::duration")]
@@ -49,6 +66,7 @@ impl Default for PoolConfig {
         Self {
             max_connections: 4,
             min_connections: 0,
+            acquire_timeout: Duration::from_secs(5),
             idle_timeout: Duration::from_mins(10),
             max_lifetime: Duration::from_mins(30),
         }
@@ -178,6 +196,15 @@ impl Default for SqliteConfig {
 /// Database flags. Each one overrides the matching config value when given.
 #[derive(Debug, Clone, Args, Serialize)]
 pub struct DbArgs {
+    /// Apply pending database migrations at startup.
+    #[arg(
+        id = "db-auto-migrate",
+        long = "db-auto-migrate",
+        value_name = "BOOL",
+        help_heading = "Database"
+    )]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    auto_migrate: Option<bool>,
     #[command(flatten)]
     pool: PoolArgs,
     // An empty table has no `type` and would fail, so it is omitted without flags.
@@ -239,6 +266,13 @@ struct PoolArgs {
     )]
     #[serde(skip_serializing_if = "Option::is_none")]
     min_connections: Option<u32>,
+    /// Wait this long for a free database connection, e.g. `5s`.
+    #[arg(id = "db-acquire-timeout", long = "db-acquire-timeout", value_name = "DURATION", value_parser = magpie_core::duration::parse)]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "magpie_core::duration::serialize_option"
+    )]
+    acquire_timeout: Option<Duration>,
     /// Close idle database connections after this long, e.g. `5m`.
     #[arg(id = "db-idle-timeout", long = "db-idle-timeout", value_name = "DURATION", value_parser = magpie_core::duration::parse)]
     #[serde(

@@ -38,6 +38,22 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: magpie
+          POSTGRES_PASSWORD: magpie
+          POSTGRES_DB: magpie
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U magpie"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
+    env:
+      MAGPIE_TEST_POSTGRES_URL: postgres://magpie:magpie@localhost:5432/magpie
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -45,6 +61,15 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-nextest
+      - name: Migrate a fresh SQLite database
+        run: cargo run -p magpie-server -- --db-backend sqlite --sqlite-path "$RUNNER_TEMP/magpie.db" migrate
+      - name: Migrate a fresh Postgres database
+        env:
+          MAGPIE_DB__BACKEND__TYPE: postgres
+          MAGPIE_DB__BACKEND__PASSWORD: env:PGPASSWORD
+          MAGPIE_DB__BACKEND__SSL_MODE: disable
+          PGPASSWORD: magpie
+        run: cargo run -p magpie-server -- migrate
       - run: cargo nextest run --workspace --all-features --no-tests=pass
       - run: cargo test --workspace --doc
       - run: cargo doc --workspace --no-deps --all-features

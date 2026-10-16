@@ -9,10 +9,14 @@ use config::PoolConfig;
 use magpie_core::secret::{Secret, SecretRef};
 use sqlx::{
     Connection as _, Database,
+    migrate::Migrator,
     pool::PoolOptions,
     postgres::{PgConnectOptions, PgPool},
     sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePool, SqliteSynchronous},
 };
+
+static POSTGRES_MIGRATIONS: Migrator = sqlx::migrate!("./migrations/postgres");
+static SQLITE_MIGRATIONS: Migrator = sqlx::migrate!("./migrations/sqlite");
 
 /// Database handle.
 #[derive(Debug, Clone)]
@@ -109,6 +113,19 @@ impl Db {
         }
     }
 
+    /// Applies pending migrations for the backend.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`DbError::Migrate`] when a migration fails or an applied one has changed.
+    pub async fn migrate(&self) -> Result<(), DbError> {
+        match &self.pool {
+            Pool::Postgres(pool) => POSTGRES_MIGRATIONS.run(pool).await?,
+            Pool::Sqlite(pool) => SQLITE_MIGRATIONS.run(pool).await?,
+        }
+        Ok(())
+    }
+
     /// Checks that the database answers a query.
     ///
     /// # Errors
@@ -124,6 +141,7 @@ fn pool_options<DB: Database>(pool: &PoolConfig) -> PoolOptions<DB> {
     PoolOptions::new()
         .max_connections(pool.max_connections)
         .min_connections(pool.min_connections)
+        .acquire_timeout(pool.acquire_timeout)
         .idle_timeout(pool.idle_timeout)
         .max_lifetime(pool.max_lifetime)
 }

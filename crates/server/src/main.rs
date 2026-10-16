@@ -31,6 +31,7 @@ async fn run(cli: Cli) -> anyhow::Result<()> {
     match cli.command {
         Command::Config => run_config_command(&config)?,
         Command::Serve => run_serve_command(&config).await?,
+        Command::Migrate => run_migrate_command(&config).await?,
     }
 
     Ok(())
@@ -41,9 +42,23 @@ fn run_config_command(config: &Config) -> anyhow::Result<()> {
     Ok(())
 }
 
+async fn run_migrate_command(config: &Config) -> anyhow::Result<()> {
+    magpie_telemetry::init(&config.log)?;
+    let db = magpie_db::Db::connect(&config.db).await?;
+    db.migrate().await?;
+    tracing::info!("database migrated");
+    Ok(())
+}
+
 async fn run_serve_command(config: &Config) -> anyhow::Result<()> {
     let log_control = magpie_telemetry::init(&config.log)?;
     magpie_telemetry::install_panic_hook();
+
+    // Connect and migrate before binding, so the port only opens once the server can answer.
+    let db = magpie_db::Db::connect(&config.db).await?;
+    if config.db.auto_migrate {
+        db.migrate().await?;
+    }
 
     let bind_address = SocketAddr::new(config.http.ip, config.http.port);
     let listener = TcpListener::bind(bind_address)
@@ -58,8 +73,6 @@ async fn run_serve_command(config: &Config) -> anyhow::Result<()> {
         }
         tracing::info!("shutdown signal received");
     };
-
-    let db = magpie_db::Db::connect(&config.db).await?;
 
     let app = routes::app(state::AppState { db, log_control });
     magpie_http::serve(listener, app, shutdown).await?;
