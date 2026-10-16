@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use clap::{Parser, Subcommand};
 use figment::Figment;
 use figment::providers::{Env, Format as _, Serialized, Toml};
+use magpie_db::{DbArgs, DbConfig};
 use magpie_http::{HttpArgs, HttpConfig};
 use magpie_telemetry::{LogArgs, LogConfig};
 use serde::{Deserialize, Serialize};
@@ -22,6 +23,8 @@ pub(crate) struct Cli {
     pub(crate) log: LogArgs,
     #[command(flatten)]
     pub(crate) http: HttpArgs,
+    #[command(flatten)]
+    pub(crate) db: DbArgs,
 }
 
 #[derive(Debug, Clone, Copy, Subcommand)]
@@ -37,6 +40,7 @@ pub(crate) enum Command {
 pub(crate) struct Config {
     pub(crate) log: LogConfig,
     pub(crate) http: HttpConfig,
+    pub(crate) db: DbConfig,
 }
 
 impl Config {
@@ -85,5 +89,19 @@ impl Config {
             .merge(Env::prefixed("MAGPIE_").split("__").ignore(&["config"]))
             .merge(Serialized::defaults(cli))
             .extract()?)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use clap::CommandFactory as _;
+
+    use super::Cli;
+
+    #[test]
+    fn cli_definition_is_valid() {
+        // Flattened argument structs from several crates share one namespace. This
+        // runs clap's checks for duplicate ids and flags.
+        Cli::command().debug_assert();
     }
 }

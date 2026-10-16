@@ -29,6 +29,7 @@ impl Default for HttpConfig {
 
 /// HTTP flags. Each one overrides the matching config value when given.
 #[derive(Debug, Clone, Args, Serialize)]
+#[command(next_help_heading = "HTTP")]
 pub struct HttpArgs {
     /// Address to bind.
     #[arg(long)]

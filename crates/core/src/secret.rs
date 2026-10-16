@@ -1,7 +1,8 @@
 //! Secret support types and functions
 
-use std::{fmt, io, path::PathBuf};
+use std::{ffi::OsStr, fmt, io, path::PathBuf};
 
+use clap::{builder::TypedValueParser, error::ErrorKind};
 use secrecy::{ExposeSecret as _, SecretString};
 use serde::{Deserialize, Serialize};
 use zeroize::Zeroizing;
@@ -221,6 +222,39 @@ impl fmt::Display for SecretRef {
 impl From<SecretRef> for String {
     fn from(value: SecretRef) -> Self {
         value.to_string()
+    }
+}
+
+/// Clap value parser for secret flags, accepting only references.
+#[derive(Debug, Clone, Copy)]
+pub struct SecretRefParser;
+
+impl TypedValueParser for SecretRefParser {
+    type Value = SecretRef;
+
+    fn parse_ref(
+        &self,
+        cmd: &clap::Command,
+        arg: Option<&clap::Arg>,
+        value: &OsStr,
+    ) -> Result<SecretRef, clap::Error> {
+        let invalid = |reason: &str| {
+            let flag = arg.map_or_else(|| "argument".to_owned(), ToString::to_string);
+            clap::Error::raw(
+                ErrorKind::ValueValidation,
+                format!("invalid value for '{flag}': {reason}"),
+            )
+            .with_cmd(cmd)
+        };
+
+        let text = value.to_str().ok_or_else(|| invalid("not valid UTF-8"))?;
+        match SecretRef::try_from(text.to_owned()) {
+            Ok(SecretRef::Literal(_)) => Err(invalid(
+                "expected a reference such as `env:NAME` or `file:/path`; secret values are not accepted on the command line",
+            )),
+            Ok(reference) => Ok(reference),
+            Err(err) => Err(invalid(&err.to_string())),
+        }
     }
 }
 
